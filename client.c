@@ -54,6 +54,7 @@ int main (int argc, char **argv) {
     }
   } while (cmd != 'q');
 
+  free(msg);
 
   close(sock_fd);
   return 0;
@@ -100,6 +101,11 @@ int read_msg(int sock_fd, char * msg) {
   //2. 타임아웃
   //근데 타임아웃을 보내는데서도 체크하면 메시지 받을때는 서버가 다 보낸건지
   //아니면 그냥 타임아웃 된 건지 어떻게 구분을하지
+  //
+  //위에거 다 치우고. 액티브 된 상태에서 항상 오는 메시지를 받아야하니까 이걸
+  //어떻게 받을지 고민을 해야한다. 스레드를 하나 더 돌리든 프로세스 하나를 더
+  //돌리든. 메시지가 잘 전송된건 tcp가 보장해주는걸로.
+  //일단 돌아가는거 만들고 나서 ack추가할거면 하든가.
   int msg_len = read(sock_fd, msg, MAX_LEN-1);
   return 0;
 }
