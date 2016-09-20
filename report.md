@@ -1,11 +1,11 @@
 HW1 Report
 ====
-2013-11421 이은서
+<p align=right>2013-11421 이은서</p>
 
-### Problem Statement
+### 1.Problem Statement
 블라블라
 
-### Implementation Details
+### 2.Implementation Details
 #### Protocol Design
 프로토콜 디자인
 
@@ -36,8 +36,8 @@ HW1 Report
     1. 콘솔에 `r`를 입력합니다.
     1. 콘솔에 지금까지 받은 메시지들이 나타납니다.
 
-### Results
+### 3.Results
 블라블라
 
-### Discusion
+### 4.Discusion
 블라블라
