@@ -14,10 +14,23 @@ HW1 Report
     - activate/logon : 0
     - message send : 1
 
+2. log on protocol
+    - [ action code | id ]
+
+3. message send
+    - [ action code | destination | source | message content ]
+
 ##### Server to Client
 1. action code
     - activate : 0
     - message deliver : 1
+
+2. log on 반응
+    - log on 성공 : [ action code | 0 ]
+    - log on 실패 : [ action code | 1 ]
+
+3. message send
+    - [ action code | source | message content ]
 
 #### Functions
 함수 설명들
