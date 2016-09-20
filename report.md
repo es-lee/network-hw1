@@ -23,13 +23,18 @@ HW1 Report
 ##### Server to Client
 1. action code
     - activate : 0
-    - message deliver : 1
+    - message send 반응 : 1
+    - message deliver : 2
 
 2. log on 반응
     - log on 성공 : [ action code | 0 ]
     - log on 실패 : [ action code | 1 ]
 
-3. message send
+3. message send 반응
+    - reciever의 id가 valid한 경우 : [action code | 0]
+    - reciever의 id가 unvalid한 경우 : [action code | 1]
+
+4. message deliver
     - [ action code | source | message content ]
 
 #### Functions
@@ -48,6 +53,9 @@ HW1 Report
 - 메시지 읽기
     1. 콘솔에 `r`를 입력합니다.
     1. 콘솔에 지금까지 받은 메시지들이 나타납니다.
+
+- deactivate/log off
+    1. 콘솔에 `q`를 입력합니다.
 
 ### 3.Results
 블라블라
