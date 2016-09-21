@@ -34,25 +34,25 @@ int main (int argc, char **argv) {
   int user_id = DUMMY;
   login(&user_id);
 
-  char cmd;
+  char cmd [MAX_LEN];
   char buf [MAX_LEN];
   int dst = DUMMY;
 
   do {
     printf("command : ");
-    scanf(" %c", &cmd);
+    scanf("%s", cmd);
 
   // 메시지보내기
-    if (cmd == 's')
+    if (strcmp(cmd, "s") == 0)
     {
       send_msg(&dst, &buf);
     }
   // 메시지읽기
-    else if (cmd == 'r')
+    else if (strcmp(cmd, "r") == 0)
     {
       read_msg(sock_fd, buf);
     }
-  } while (cmd != 'q');
+  } while (strcmp(cmd, "q") != 0);
 
   free(msg);
 

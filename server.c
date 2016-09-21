@@ -49,24 +49,21 @@ int main (int argc, char **argv) {
     tmps = reads;
     timeout.tv_sec = 5;
     timeout.tv_usec = 0;
+int foo;
+    foo=select(fd_max + 1, &tmps, 0, 0, &timeout);
+printf("select %d\n", foo);
 
-    select(fd_max + 1, &tmps, 0, 0, &timeout);
-
-printf("select!!!!!!!!!!!!!!!\n");
     for (fd = 0; fd <= fd_max; fd++)
     {
       if (FD_ISSET(fd, &tmps))
       {
-printf("1\n");
+printf("fd %d\n", fd);
         if (fd == sock_fd_server)
         {
-printf("2\n");
           c_len = sizeof(c_addr);
-printf("4\n");
-          sock_fd_client = accept(sock_fd_client, (struct sockaddr *) &c_addr, &c_len);
-printf("5\n");
+          sock_fd_client = accept(sock_fd_server, (struct sockaddr *) &c_addr, &c_len);
+printf("sock_fd_client %d\n", sock_fd_client);
           FD_SET(sock_fd_client, &reads);
-printf("6\n");
 
           if (fd_max < sock_fd_client)
             fd_max = sock_fd_client;
@@ -75,7 +72,6 @@ printf("6\n");
         }
         else
         {
-printf("3\n");
           str_len = read(fd, msg, SIZE);
           if (str_len == 0)
           {

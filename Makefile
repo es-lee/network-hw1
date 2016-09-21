@@ -1,6 +1,6 @@
 CC = /usr/bin/gcc
 CFLAGS = -Wall -std=c99
-TARGETS = adm_server adm_client server client
+TARGETS = adm_server adm_client server client echo
 
 all: $(TARGETS)
 
