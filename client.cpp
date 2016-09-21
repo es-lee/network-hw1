@@ -12,8 +12,6 @@
 
 int set_user_id();
 int login(int, int);
-int send_msg();
-int read_msg();
 
 int main () {
   int sock_fd = socket(PF_INET, SOCK_STREAM, 0);

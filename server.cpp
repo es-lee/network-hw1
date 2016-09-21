@@ -23,15 +23,14 @@ int main () {
   listen(sock_fd_server, 5);
 
   // TODO: select() 사용하여 멀티플렉싱 서버 구현
-  fd_set reads, tmps;
+  fd_set reads;
   FD_ZERO(&reads);
   FD_SET(sock_fd_server, &reads);
   int fd_max = sock_fd_server;
 
   while (1)
   {
-
-    tmps = reads;
+    fd_set tmps = reads;
     timeval timeout;
     timeout.tv_sec = 5;
     timeout.tv_usec = 0;
