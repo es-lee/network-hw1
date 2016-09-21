@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <string>
+#include <iostream>
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -9,7 +11,8 @@
 #define MAX_LEN 140
 #define DUMMY 11111
 
-int login();
+int set_user_id();
+int login(int, int);
 int send_msg();
 int read_msg();
 
@@ -17,7 +20,7 @@ int main (int argc, char **argv) {
 
   int sock_fd = 0;
   pid_t pid;
-  char *msg = (char *) malloc(1024);
+  char msg [1024];
   int str_len;
   struct sockaddr_in server_addr;
 
@@ -33,6 +36,10 @@ int main (int argc, char **argv) {
   server_addr.sin_port = htons(20421);
 
   connect(sock_fd, (struct sockaddr*) &server_addr, sizeof(server_addr));
+
+  int user_id = set_user_id();
+printf("아이디 세팅 끝\n");
+  login(user_id, sock_fd);
 
   pid = fork();
   if (pid == 0)
@@ -85,22 +92,29 @@ int main (int argc, char **argv) {
     }
   } while (strcmp(cmd, "q") != 0);
 */
-  free(msg);
 
   close(sock_fd);
   return 0;
 }
 
-int login(int * user_id)
+int set_user_id()
+{
+  int id;
+  printf("Enter your ID : ");
+  scanf("%d", &id);
+  return id;
+}
+
+int login(int user_id, int sock_fd)
 {
   int login = 1;
+  std::string buf = "0 ";
+  buf += std::to_string(user_id);
+std::cout << buf;
   while (login)
   {
     //TODO: 통신부
-    printf("id : ");
-    scanf("%d", user_id);
-    printf("your id is %d.\n", *user_id);
-
+    write(sock_fd, buf.c_str(), buf.length());
     //기다렸다가 로그인 성공
     login = 0;
     printf("Log on success!\n");
