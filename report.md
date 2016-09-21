@@ -38,6 +38,8 @@ HW1 Report
 아래와 같이 프로토콜을 디자인했다.
 
 ##### Client to Server
+1. Framing bits
+
 1. action code
     - activate/logon : 0
     - message send : 1

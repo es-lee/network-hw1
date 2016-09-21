@@ -6,7 +6,7 @@
 #include <sys/time.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
-#define SIZE 100
+#define SIZE 2048
 
 int main (int argc, char **argv) {
 
@@ -16,7 +16,7 @@ int main (int argc, char **argv) {
   fd_set reads, tmps;
   int fd_max;
 
-  char msg[SIZE];
+  char buf[SIZE];
   int str_len;
   struct timeval timeout;
 
@@ -35,7 +35,7 @@ int main (int argc, char **argv) {
 
   listen(sock_fd_server, 5);
 
-  //TODO: select() 사용하여 멀티플렉싱 서버 구현
+  // TODO: select() 사용하여 멀티플렉싱 서버 구현
   FD_ZERO(&reads);
   FD_SET(sock_fd_server, &reads);
   fd_max = sock_fd_server;
@@ -72,7 +72,8 @@ printf("sock_fd_client %d\n", sock_fd_client);
         }
         else
         {
-          str_len = read(fd, msg, SIZE);
+          // TODO: 로그인, 디액, 메시지큐, 메시지 처리
+          str_len = read(fd, buf, SIZE);
           if (str_len == 0)
           {
             FD_CLR(fd, &reads);
@@ -81,13 +82,12 @@ printf("sock_fd_client %d\n", sock_fd_client);
           }
           else
           {
-            write(fd, msg, str_len);
+            write(fd, buf, str_len);
           }
         }
       }
     }
   }
-  //TODO: 로그인, 디액, 메시지큐, 메시지 처리
 
   close(sock_fd_server);
   return 0;
