@@ -15,8 +15,7 @@ int login(int, int);
 int send_msg();
 int read_msg();
 
-int main (int argc, char **argv) {
-
+int main () {
   int sock_fd = 0;
   pid_t pid;
   char msg [1024];

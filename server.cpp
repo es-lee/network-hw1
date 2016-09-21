@@ -8,8 +8,7 @@
 #include <arpa/inet.h>
 #define SIZE 2048
 
-int main (int argc, char **argv) {
-
+int main () {
   int sock_fd_server = 0;
   struct sockaddr_in server_addr;
 
