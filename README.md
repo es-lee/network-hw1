@@ -1,5 +1,5 @@
 # Server-Client in C/C++
-# Computer Network Project - Example
+### Computer Network Project - Example
 
 This simple Server-Client programs are provided so that you get glimpse of how socket APIs can be used.
 The server awaits for a client and send a message if one connects. Then it closes both sockets of client and server itself, and terminates.
