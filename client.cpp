@@ -18,7 +18,7 @@ int main (int argc, char **argv) {
   int sock_fd = 0;
   pid_t pid;
   char *msg = (char *) malloc(1024);
-  int str_len, recv_len, recv_num;
+  int str_len;
   struct sockaddr_in server_addr;
 
   sock_fd = socket(PF_INET, SOCK_STREAM, 0);
@@ -138,5 +138,6 @@ int read_msg(int sock_fd, char * msg) {
   //돌리든. 메시지가 잘 전송된건 tcp가 보장해주는걸로.
   //일단 돌아가는거 만들고 나서 ack추가할거면 하든가.
   int msg_len = read(sock_fd, msg, MAX_LEN-1);
+  printf("%d\n",msg_len);
   return 0;
 }
