@@ -9,23 +9,11 @@
 #define SIZE 2048
 
 int main () {
-  int sock_fd_server = 0;
-  struct sockaddr_in server_addr;
-
-  fd_set reads, tmps;
-  int fd_max;
-
-  char buf[SIZE];
-  int str_len;
-  struct timeval timeout;
-
   // 서버 소켓 생성 (TCP)
-  sock_fd_server = socket(PF_INET, SOCK_STREAM, 0);
-
-  // 초기화
-  memset(&server_addr, 0, sizeof(struct sockaddr_in));
+  int sock_fd_server = socket(PF_INET, SOCK_STREAM, 0);
 
   // server setting
+  sockaddr_in server_addr = {};
   server_addr.sin_family = AF_INET;
   server_addr.sin_addr.s_addr = htonl(INADDR_ANY);
   server_addr.sin_port = htons(20421);
@@ -35,30 +23,29 @@ int main () {
   listen(sock_fd_server, 5);
 
   // TODO: select() 사용하여 멀티플렉싱 서버 구현
+  fd_set reads, tmps;
   FD_ZERO(&reads);
   FD_SET(sock_fd_server, &reads);
-  fd_max = sock_fd_server;
+  int fd_max = sock_fd_server;
 
   while (1)
   {
-    int fd;
-    int sock_fd_client, c_len;
-    struct sockaddr_in c_addr;
 
     tmps = reads;
+    timeval timeout;
     timeout.tv_sec = 5;
     timeout.tv_usec = 0;
-int foo;
-    foo=select(fd_max + 1, &tmps, 0, 0, &timeout);
+    select(fd_max + 1, &tmps, 0, 0, &timeout);
 
-    for (fd = 0; fd <= fd_max; fd++)
+    for (int fd = 0; fd <= fd_max; fd++)
     {
       if (FD_ISSET(fd, &tmps))
       {
         if (fd == sock_fd_server)
         {
-          c_len = sizeof(c_addr);
-          sock_fd_client = accept(sock_fd_server, (struct sockaddr *) &c_addr,(socklen_t *) &c_len);
+          sockaddr_in c_addr;
+          int c_len = sizeof(c_addr);
+          int sock_fd_client = accept(sock_fd_server, (struct sockaddr *) &c_addr,(socklen_t *) &c_len);
           FD_SET(sock_fd_client, &reads);
 
           if (fd_max < sock_fd_client)
@@ -69,7 +56,8 @@ int foo;
         else
         {
           // TODO: 로그인, 디액, 메시지큐, 메시지 처리
-          str_len = read(fd, buf, SIZE);
+          char buf[SIZE];
+          int str_len = read(fd, buf, SIZE);
           if (str_len == 0)
           {
             FD_CLR(fd, &reads);

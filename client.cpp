@@ -16,14 +16,9 @@ int send_msg();
 int read_msg();
 
 int main () {
-  int sock_fd = 0;
-  pid_t pid;
-  char msg [1024];
-  int str_len;
-  struct sockaddr_in server_addr;
+  int sock_fd = socket(PF_INET, SOCK_STREAM, 0);
 
-  sock_fd = socket(PF_INET, SOCK_STREAM, 0);
-
+  sockaddr_in server_addr;
   memset(&server_addr, 0, sizeof(struct sockaddr_in));
 
   server_addr.sin_family = AF_INET;
@@ -38,7 +33,10 @@ int main () {
   int user_id = set_user_id();
   login(user_id, sock_fd);
 
-  pid = fork();
+  char msg [1024];
+  int str_len;
+
+  pid_t pid = fork();
   if (pid == 0)
   {
     while(1)
