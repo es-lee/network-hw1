@@ -1,15 +1,11 @@
-CC = /usr/bin/gcc
-CFLAGS = -Wall -std=c99
-TARGETS = adm_server adm_client server client echo
+CXX = g++
+CXXFLAGS = -Wall -std=c++11 -g
+TARGETS = server client
 
 all: $(TARGETS)
-
-%.c%:
-	${ CC} $^ ${CFLAGS} -o $@
-
-%.c%.o:
-	${ CC} $^ ${CFLAGS} -c $@
+%: %.cpp
+	$(CXX) $^ $(CXXFLAGS) -o $@
 
 .PHONY: clean
 clean:
-	-rm -f adm_server adm_client server client
+	-rm -f $(TARGETS)
