@@ -51,18 +51,15 @@ int main (int argc, char **argv) {
     timeout.tv_usec = 0;
 int foo;
     foo=select(fd_max + 1, &tmps, 0, 0, &timeout);
-printf("select %d\n", foo);
 
     for (fd = 0; fd <= fd_max; fd++)
     {
       if (FD_ISSET(fd, &tmps))
       {
-printf("fd %d\n", fd);
         if (fd == sock_fd_server)
         {
           c_len = sizeof(c_addr);
           sock_fd_client = accept(sock_fd_server, (struct sockaddr *) &c_addr,(socklen_t *) &c_len);
-printf("sock_fd_client %d\n", sock_fd_client);
           FD_SET(sock_fd_client, &reads);
 
           if (fd_max < sock_fd_client)

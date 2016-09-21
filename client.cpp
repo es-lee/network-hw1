@@ -9,7 +9,6 @@
 #include <arpa/inet.h>
 
 #define MAX_LEN 140
-#define DUMMY 11111
 
 int set_user_id();
 int login(int, int);
@@ -38,7 +37,6 @@ int main (int argc, char **argv) {
   connect(sock_fd, (struct sockaddr*) &server_addr, sizeof(server_addr));
 
   int user_id = set_user_id();
-printf("아이디 세팅 끝\n");
   login(user_id, sock_fd);
 
   pid = fork();
@@ -46,7 +44,6 @@ printf("아이디 세팅 끝\n");
   {
     while(1)
     {
-      fputs("전송할 메시지 입력", stdout);
       fgets(msg, MAX_LEN, stdin);
       if(!strcmp(msg, "q\n"))
       {
@@ -64,7 +61,6 @@ printf("아이디 세팅 끝\n");
       if(str_len == 0)
         exit(0);
       msg[str_len]=0;
-      printf("서버로부터 전송된 메시지 : %s\n", msg);
     }
   }
 
