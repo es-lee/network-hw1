@@ -8,4 +8,4 @@ all: $(TARGETS)
 
 .PHONY: clean
 clean:
-	-rm -f $(TARGETS)
+	-rm -rf $(TARGETS) *.dSYM
