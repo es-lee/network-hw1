@@ -128,7 +128,10 @@ printf("after read\n");
             {
               //TODO: 메시지큐에 저장
               printf("메시지큐에 저장해주세요!\n");
-              FILE * fp = fopen("log", "a");
+              char fname[2];
+              fname[0] = buf[1];
+              fname[1] = '\0';
+              FILE * fp = fopen(fname, "a");
               fprintf(fp, buf, PSIZE);
               fclose(fp);
             }
