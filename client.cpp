@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <signal.h>
 #include <string>
 #include <iostream>
 #include <unistd.h>
@@ -8,11 +9,11 @@
 #include <sys/socket.h>
 #include <arpa/inet.h>
 
-#define MAX_LEN 140
 #define PSIZE 50
 
 int set_user_id();
 int login(int, int);
+int isvalidid(int id);
 
 int main () {
   int sock_fd = socket(PF_INET, SOCK_STREAM, 0);
@@ -36,24 +37,58 @@ int main () {
   {
     while(1)
     {
-      char msg [1024];
-      fgets(msg, MAX_LEN, stdin);
-      if(!strcmp(msg, "q\n"))
+      char msg [PSIZE];
+      fgets(msg, PSIZE, stdin);
+      if (!strcmp(msg, "q\n"))
       {
         shutdown(sock_fd, SHUT_WR);
         close(sock_fd);
+        printf("꺼지란말이야!!!! Succeding you, father");
+        kill(getppid(), SIGKILL);
         exit(0);
       }
-      write(sock_fd, msg, strlen(msg));
+      else if(!strcmp(msg, "s\n"))
+      {
+        // TODO: 메시지 쓰기
+        printf("=====Send Message=====\n");
+        while(1)
+        {
+          printf("To : ");
+          fgets(msg, PSIZE, stdin);
+
+          if (isvalidid(msg[0]-'0'))
+            break;
+
+          printf("Invalid reciever id\n");
+        }
+        char buf[PSIZE];
+        buf[0] = '1';
+        // TODO: id valid check
+        buf[1] = msg[0];
+        printf("Content :\n");
+        fgets(msg, PSIZE, stdin);
+        printf("[%s]\n", msg);
+
+        //write(sock_fd, msg, strlen(msg));
+      }
+      else if(!strcmp(msg, "r\n"))
+      {
+        // TODO: 메시지 읽은거 보여주기
+        printf("=====Read Message=====\n");
+      }
     }
   }
   else {
     while(1)
     {
-      char msg [1024];
-      int str_len = read(sock_fd, msg, MAX_LEN);
-      if(str_len == 0)
+      // TODO: 메시지 계속 읽어서 어딘가 저장하기
+      char msg [PSIZE];
+      int str_len = read(sock_fd, msg, PSIZE);
+      if(str_len != 0)
+      {
+        printf("Read failed\n");
         exit(0);
+      }
       msg[str_len]=0;
     }
   }
@@ -62,16 +97,23 @@ int main () {
   return 0;
 }
 
+int isvalidid(int id)
+{
+  if (id < 1 || id > 9)
+    return 0;
+  return 1;
+}
+
 int set_user_id()
 {
   char tmp;
   printf("Enter your ID : ");
   scanf("%c", &tmp);
   int id = tmp-'0';
-  if (id < 1 || id > 9)
+  if (!isvalidid(id))
   {
     perror("invalid id. byebye\n");
-    exit(-1);
+    exit(0);
   }
   else
     return id;
@@ -83,8 +125,8 @@ int login(int user_id, int sock_fd)
   char buf[PSIZE];
   buf[0] = '0';
   buf[1] = user_id + '0';
-  printf("%d\n", buf[1]-'0');
-    //TODO: 통신부
+
+  // 통신부
   write(sock_fd, buf, PSIZE);
   read(sock_fd, buf, PSIZE);
   if (buf[1] - '0')

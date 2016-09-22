@@ -14,6 +14,7 @@
 #define INVALIDID 0
 
 int invalidlogin (int);
+int fdfindbyid (int);
 
 typedef struct {
   sockaddr_in c_addr;
@@ -88,7 +89,6 @@ printf("after read\n");
           else if (buf[0] == '0')
           {
             //login
-printf("=========================\n");
             if (invalidlogin(buf[1]-'0'))
             {
             //login fail : 이미 로그인한 아이디로 로그인
@@ -101,11 +101,30 @@ printf("=========================\n");
             else
             {
               //login success
-              //TODO: 정보 저장
               printf("fd%d 가 id(%d)로 로그인함\n", fd, buf[1]-'0');
               clstate[fd].id = buf[1] - '0';
               clstate[fd].active = ONLINE;
               write(fd, "00", PSIZE);
+              //TODO: 온 메시지 확인하고 보내주기.
+            }
+          }
+          else
+          {
+            //msg 처리
+            int recv_id = buf[1] - '0';
+            int recv = fdfindbyid(recv_id);
+            if (recv)
+            {
+              //바로 보내기
+              char wbuf[PSIZE];
+              wbuf[0] = '1';
+              wbuf[1] = buf[2];
+              strncpy(wbuf+2, buf+3, PSIZE-3);
+              write(fd, wbuf, PSIZE);
+            }
+            else
+            {
+              //TODO: 메시지큐에 저장
             }
           }
         }
@@ -117,7 +136,17 @@ printf("=========================\n");
   return 0;
 }
 
-int invalidlogin (int id)
+int fdfindbyid(int id)
+{
+  for (int i = 4; i < MAX_CONN; i++)
+  {
+    if(clstate[i].id == id)
+      return i;
+  }
+  return 0;
+}
+
+int invalidlogin(int id)
 {
   for (int i = 4; i < MAX_CONN; i++)
   {
