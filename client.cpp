@@ -31,7 +31,6 @@ int main () {
   int user_id = set_user_id();
   login(user_id, sock_fd);
 
-
   pid_t pid = fork();
   if (pid == 0)
   {
@@ -63,13 +62,16 @@ int main () {
         }
         char buf[PSIZE];
         buf[0] = '1';
-        // TODO: id valid check
         buf[1] = msg[0];
+        buf[2] = user_id + '0';
         printf("Content :\n");
         fgets(msg, PSIZE, stdin);
         printf("[%s]\n", msg);
+        strncpy(buf+3, msg, PSIZE-3);
+        buf[PSIZE-1] = '\0';
+        printf("msg send protocol : %s\n", buf);
 
-        //write(sock_fd, msg, strlen(msg));
+        //write(sock_fd, buf, PSIZE);
       }
       else if(!strcmp(msg, "r\n"))
       {
