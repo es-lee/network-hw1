@@ -9,6 +9,7 @@
 #include <arpa/inet.h>
 
 #define MAX_LEN 140
+#define PSIZE 50
 
 int set_user_id();
 int login(int, int);
@@ -63,22 +64,34 @@ int main () {
 
 int set_user_id()
 {
-  int id;
+  char tmp;
   printf("Enter your ID : ");
-  scanf("%d", &id);
-  return id;
+  scanf("%c", &tmp);
+  int id = tmp-'0';
+  if (id < 1 || id > 9)
+  {
+    perror("invalid id. byebye\n");
+    exit(-1);
+  }
+  else
+    return id;
 }
 
 int login(int user_id, int sock_fd)
 {
   int login = 1;
-  std::string buf = "0 ";
-  buf += std::to_string(user_id);
-std::cout << buf;
-  while (login)
-  {
+  char buf[PSIZE];
+  buf[0] = '0';
+  buf[1] = user_id + '0';
+  printf("%d\n", buf[1]-'0');
     //TODO: 통신부
-    write(sock_fd, buf.c_str(), buf.length());
+  write(sock_fd, buf, PSIZE);
+  read(sock_fd, buf, PSIZE);
+  if (buf[1] - '0')
+  {
+    printf("login failed\n");
+    return -1;
   }
+  printf("login success\n");
   return login;
 }

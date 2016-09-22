@@ -7,6 +7,21 @@
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #define SIZE 2048
+#define PSIZE 50
+#define MAX_CONN 30
+#define ONLINE 1
+#define OFFLINE 0
+#define INVALIDID 0
+
+int invalidlogin (int);
+
+typedef struct {
+  sockaddr_in c_addr;
+  int id;
+  int active;
+} ClientState;
+
+ClientState clstate[MAX_CONN];
 
 int main () {
   // 서버 소켓 생성 (TCP)
@@ -42,6 +57,7 @@ int main () {
       {
         if (fd == sock_fd_server)
         {
+          //TODO: ip, port, fd?
           sockaddr_in c_addr;
           int c_len = sizeof(c_addr);
           int sock_fd_client = accept(sock_fd_server, (struct sockaddr *) &c_addr,(socklen_t *) &c_len);
@@ -50,22 +66,47 @@ int main () {
           if (fd_max < sock_fd_client)
             fd_max = sock_fd_client;
 
+          clstate[sock_fd_client].c_addr = c_addr;
           printf("client connected : fd%d\n", sock_fd_client);
         }
         else
         {
           // TODO: 로그인, 디액, 메시지큐, 메시지 처리
+printf("before read\n");
           char buf[SIZE];
-          int str_len = read(fd, buf, SIZE);
-          if (str_len == 0)
+          int str_len = read(fd, buf, PSIZE);
+printf("after read\n");
+          if (str_len <= 0)
           {
+            //TODO: deactivate 상태로 관리해줘야
+            clstate[fd].id = INVALIDID;
+            clstate[fd].active = OFFLINE;
             FD_CLR(fd, &reads);
             close(fd);
             printf("client disconnected : fd%d\n", fd);
           }
-          else
+          else if (buf[0] == '0')
           {
-            write(fd, buf, str_len);
+            //login
+printf("=========================\n");
+            if (invalidlogin(buf[1]-'0'))
+            {
+            //login fail : 이미 로그인한 아이디로 로그인
+              clstate[fd].id = INVALIDID;
+              clstate[fd].active = OFFLINE;
+              write(fd, "01", PSIZE);
+              FD_CLR(fd, &reads);
+              close(fd);
+            }
+            else
+            {
+              //login success
+              //TODO: 정보 저장
+              printf("fd%d 가 id(%d)로 로그인함\n", fd, buf[1]-'0');
+              clstate[fd].id = buf[1] - '0';
+              clstate[fd].active = ONLINE;
+              write(fd, "00", PSIZE);
+            }
           }
         }
       }
@@ -73,5 +114,15 @@ int main () {
   }
 
   close(sock_fd_server);
+  return 0;
+}
+
+int invalidlogin (int id)
+{
+  for (int i = 4; i < MAX_CONN; i++)
+  {
+    if (clstate[i].id == id)
+      return -1;
+  }
   return 0;
 }
