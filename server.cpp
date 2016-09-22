@@ -12,7 +12,7 @@
 #define ONLINE 1
 #define OFFLINE 0
 #define INVALIDID 0
-#define PORT 20421
+#define PORT 20431
 
 int invalidlogin (int);
 int fdfindbyid (int);
@@ -106,6 +106,17 @@ printf("after read\n");
               clstate[fd].id = buf[1] - '0';
               clstate[fd].active = ONLINE;
               write(fd, "00", PSIZE);
+              // TODO : 지금까지 있는 로그 다 보내주고 파일 초기화
+              char fname[2];
+              fname[0] = buf[1];
+              fname[1] = '\0';
+              FILE * fp = fopen(fname, "r");
+              while (fread(buf, 1, PSIZE, fp) != NULL)
+                write(fd, buf, PSIZE);
+              printf("저장된 메시지를 fd%d에게 모두 전달함\n", fd);
+              fclose(fp);
+              fp = fopen(fname, "w");
+              fclose(fp);
             }
           }
           else
@@ -132,7 +143,11 @@ printf("after read\n");
               fname[0] = buf[1];
               fname[1] = '\0';
               FILE * fp = fopen(fname, "a");
-              fprintf(fp, buf, PSIZE);
+              char wbuf[PSIZE];
+              wbuf[0] = '1';
+              wbuf[1] = buf[2];
+              strncpy(wbuf+2, buf+3, PSIZE-3);
+              fwrite(wbuf, 1, PSIZE, fp);
               fclose(fp);
             }
           }

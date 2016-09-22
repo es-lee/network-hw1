@@ -8,7 +8,7 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
-#define PORT 20421
+#define PORT 20431
 #define PSIZE 50
 
 int set_user_id();
@@ -36,14 +36,28 @@ int main () {
   {
     while(1)
     {
+      // TODO: 메시지 계속 읽어서 어딘가 저장하기
+      char msg [PSIZE];
+      int str_len = read(sock_fd, msg, PSIZE);
+      printf("메시지 옴 : %s\n", msg);
+      if(str_len <= 0)
+      {
+        printf("Read failed\n");
+        exit(0);
+      }
+      msg[str_len]=0;
+    }
+  }
+  else {
+    while(1)
+    {
       char msg [PSIZE];
       fgets(msg, PSIZE, stdin);
       if (!strcmp(msg, "q\n"))
       {
         shutdown(sock_fd, SHUT_WR);
         close(sock_fd);
-        printf("꺼지란말이야!!!! Succeding you, father");
-        kill(getppid(), SIGKILL);
+        kill(0, SIGKILL);
         exit(0);
       }
       else if(!strcmp(msg, "s\n"))
@@ -78,21 +92,6 @@ int main () {
         // TODO: 메시지 읽은거 보여주기
         printf("=====Read Message=====\n");
       }
-    }
-  }
-  else {
-    while(1)
-    {
-      // TODO: 메시지 계속 읽어서 어딘가 저장하기
-      char msg [PSIZE];
-      int str_len = read(sock_fd, msg, PSIZE);
-      printf("메시지 옴 : %s\n", msg);
-      if(str_len <= 0)
-      {
-        printf("Read failed\n");
-        exit(0);
-      }
-      msg[str_len]=0;
     }
   }
 
