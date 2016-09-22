@@ -53,18 +53,13 @@ HW1 Report
 ##### Server to Client
 1. action code
     - activate : 0
-    - message send 반응 : 1
-    - message deliver : 2
+    - message deliver : 1
 
 2. log on 반응
     - log on 성공 : [ action code | 0 ]
     - log on 실패 : [ action code | 1 ]
 
-3. message send 반응
-    - reciever의 id가 valid한 경우 : [action code | 0]
-    - reciever의 id가 unvalid한 경우 : [action code | 1]
-
-4. message deliver
+3. message deliver
     - [ action code | source | message content ]
 
 #### Functions
@@ -72,7 +67,7 @@ HW1 Report
 
 #### Client Manual
 - log on
-    1. 로그온 하려면 0~9 사이의 한자리 숫자를 id로 입력하면 됩니다.
+    1. 로그온 하려면 1~9 사이의 한자리 숫자를 id로 입력하면 됩니다.
     1. 정상적으로 로그인 되면 `Log on success`가 콘솔에 나타납니다.
 
 - 메시지 보내기
