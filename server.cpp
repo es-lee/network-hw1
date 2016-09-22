@@ -12,6 +12,7 @@
 #define ONLINE 1
 #define OFFLINE 0
 #define INVALIDID 0
+#define PORT 20421
 
 int invalidlogin (int);
 int fdfindbyid (int);
@@ -32,13 +33,13 @@ int main () {
   sockaddr_in server_addr = {};
   server_addr.sin_family = AF_INET;
   server_addr.sin_addr.s_addr = htonl(INADDR_ANY);
-  server_addr.sin_port = htons(20421);
+  server_addr.sin_port = htons(PORT);
 
   bind(sock_fd_server, (struct sockaddr*) &server_addr, sizeof(struct sockaddr_in));
 
   listen(sock_fd_server, 5);
 
-  // TODO: select() 사용하여 멀티플렉싱 서버 구현
+  // select() 사용하여 멀티플렉싱 서버 구현
   fd_set reads;
   FD_ZERO(&reads);
   FD_SET(sock_fd_server, &reads);
@@ -58,7 +59,6 @@ int main () {
       {
         if (fd == sock_fd_server)
         {
-          //TODO: ip, port, fd?
           sockaddr_in c_addr;
           int c_len = sizeof(c_addr);
           int sock_fd_client = accept(sock_fd_server, (struct sockaddr *) &c_addr,(socklen_t *) &c_len);
@@ -72,14 +72,14 @@ int main () {
         }
         else
         {
-          // TODO: 로그인, 디액, 메시지큐, 메시지 처리
+          // TODO: 메시지큐, 메시지 처리
 printf("before read\n");
           char buf[SIZE];
           int str_len = read(fd, buf, PSIZE);
 printf("after read\n");
           if (str_len <= 0)
           {
-            //TODO: deactivate 상태로 관리해줘야
+            // deactivate
             clstate[fd].id = INVALIDID;
             clstate[fd].active = OFFLINE;
             FD_CLR(fd, &reads);
@@ -97,6 +97,7 @@ printf("after read\n");
               write(fd, "01", PSIZE);
               FD_CLR(fd, &reads);
               close(fd);
+              printf("Invalid login : client disconnected : fd%d\n", fd);
             }
             else
             {
@@ -105,12 +106,12 @@ printf("after read\n");
               clstate[fd].id = buf[1] - '0';
               clstate[fd].active = ONLINE;
               write(fd, "00", PSIZE);
-              //TODO: 온 메시지 확인하고 보내주기.
             }
           }
           else
           {
             //msg 처리
+            printf("메시지가 왔어요! fd%d가 보냄\n", fd);
             int recv_id = buf[1] - '0';
             int recv = fdfindbyid(recv_id);
             if (recv)
@@ -120,10 +121,12 @@ printf("after read\n");
               wbuf[0] = '1';
               wbuf[1] = buf[2];
               strncpy(wbuf+2, buf+3, PSIZE-3);
-              write(fd, wbuf, PSIZE);
+              write(recv, wbuf, PSIZE);
+              printf("메시지 바로 전달 프로토콜 : %s\n", wbuf);
             }
             else
             {
+              printf("메시지큐에 저장해주세요!\n");
               //TODO: 메시지큐에 저장
             }
           }

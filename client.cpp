@@ -8,7 +8,7 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
-
+#define PORT 20421
 #define PSIZE 50
 
 int set_user_id();
@@ -24,7 +24,7 @@ int main () {
   server_addr.sin_family = AF_INET;
   // for localhost
   server_addr.sin_addr.s_addr = inet_addr("127.0.0.1");
-  server_addr.sin_port = htons(20421);
+  server_addr.sin_port = htons(PORT);
 
   connect(sock_fd, (struct sockaddr*) &server_addr, sizeof(server_addr));
 
@@ -70,8 +70,8 @@ int main () {
         strncpy(buf+3, msg, PSIZE-3);
         buf[PSIZE-1] = '\0';
         printf("msg send protocol : %s\n", buf);
-
-        //write(sock_fd, buf, PSIZE);
+        write(sock_fd, buf, PSIZE);
+        printf("서버에 메시지 전송 완료!\n");
       }
       else if(!strcmp(msg, "r\n"))
       {
@@ -86,7 +86,8 @@ int main () {
       // TODO: 메시지 계속 읽어서 어딘가 저장하기
       char msg [PSIZE];
       int str_len = read(sock_fd, msg, PSIZE);
-      if(str_len != 0)
+      printf("메시지 옴 : %s\n", msg);
+      if(str_len <= 0)
       {
         printf("Read failed\n");
         exit(0);
