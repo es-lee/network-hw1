@@ -126,8 +126,11 @@ printf("after read\n");
             }
             else
             {
-              printf("메시지큐에 저장해주세요!\n");
               //TODO: 메시지큐에 저장
+              printf("메시지큐에 저장해주세요!\n");
+              FILE * fp = fopen("log", "a");
+              fprintf(fp, buf, PSIZE);
+              fclose(fp);
             }
           }
         }
