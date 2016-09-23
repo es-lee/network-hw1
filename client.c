@@ -38,7 +38,8 @@ int main () {
   int user_id = set_user_id();
   while (!user_id)
     user_id = set_user_id();
-  login(user_id, sock_fd);
+  if (!login(user_id, sock_fd))
+    return 0;
 
   pthread_t tid;
   pthread_create(&tid, NULL, msgrecieve, (void *)&sock_fd);
@@ -88,14 +89,22 @@ int main () {
       // TODO: 메시지 읽은거 보여주기
       printf("=====Read Message=====\n");
       int i;
-      for (i = 0; i < msgnum; i++)
+      if (msgnum)
       {
-        printf("From : %c\n", msglog[i][1]);
-        printf("Content :\n");
-        printf("%s\n",msglog[i]+2);
+        for (i = 0; i < msgnum; i++)
+        {
+          printf("From : %c\n", msglog[i][1]);
+          printf("Content :\n");
+          printf("%s\n",msglog[i]+2);
+          printf("======================\n");
+        }
+        msgnum = 0;
       }
-      msgnum = 0;
-      printf("======================\n");
+      else
+      {
+        printf("No message\n");
+        printf("======================\n");
+      }
     }
   }
 
@@ -144,7 +153,7 @@ int login(int user_id, int sock_fd)
   if (buf[1] - '0')
   {
     printf("login failed\n");
-    return -1;
+    return 0;
   }
   printf("login success\n");
   return login;
