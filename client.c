@@ -78,12 +78,10 @@ int main () {
       printf("Content :\n");
       readsize(msg, PSIZE);
       rmnewline(msg);
-      printf("[%s]\n", msg);
       strncpy(buf+3, msg, PSIZE-3);
       buf[PSIZE-1] = '\0';
-      printf("msg send protocol : %s\n", buf);
       write(sock_fd, buf, PSIZE);
-      printf("서버에 메시지 전송 완료!\n");
+      printf("======================\n");
     }
     else if(!strcmp(msg, "r\n"))
     {
@@ -97,6 +95,7 @@ int main () {
         printf("%s\n",msglog[i]+2);
       }
       msgnum = 0;
+      printf("======================\n");
     }
   }
 
@@ -107,7 +106,6 @@ int main () {
 void rmnewline(char * str)
 {
   int i = strlen(str);
-  printf("strlen = %d\n", i);
   if (i < PSIZE-1)
     str[i-1] = '\0';
 }
