@@ -8,7 +8,7 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
-#define PORT 20431
+#define PORT 20421
 #define PSIZE 50
 
 int set_user_id();
@@ -22,8 +22,8 @@ int main () {
   memset(&server_addr, 0, sizeof(struct sockaddr_in));
 
   server_addr.sin_family = AF_INET;
-  // for localhost
-  server_addr.sin_addr.s_addr = inet_addr("127.0.0.1");
+  // for cn.snucse.org;
+  server_addr.sin_addr.s_addr = inet_addr("147.46.240.40");
   server_addr.sin_port = htons(PORT);
 
   connect(sock_fd, (struct sockaddr*) &server_addr, sizeof(server_addr));
