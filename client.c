@@ -89,11 +89,16 @@ int main () {
     {
       // TODO: 메시지 읽은거 보여주기
       printf("=====Read Message=====\n");
+      int i;
+      for (i = 0; i < msgnum; i++)
+      {
+        printf("%s\n",msglog[i]);
+      }
+      msgnum = 0;
     }
   }
 
   close(sock_fd);
-  printf("끝날거얀\n");
   return 0;
 }
 
@@ -157,15 +162,15 @@ void *msgrecieve(void *vargp)
 
   while(1)
   {
-    // TODO: 메시지 계속 읽어서 어딘가 저장하기
+    // 메시지 계속 읽어서 어딘가 저장하기
     char msg [PSIZE];
     int str_len = read(sock_fd, msg, PSIZE);
-    printf("메시지 옴 : %s\n", msg);
+
     if(str_len <= 0)
-    {
-      printf("Read failed\n");
       break;
-    }
+
+    // 저장해야해 아까 msglog[][]에다가.
+    strncpy(msglog[msgnum++], msg, PSIZE);
     msg[str_len]=0;
   }
   close(sock_fd);
