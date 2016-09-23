@@ -30,7 +30,7 @@ int main () {
   int sock_fd_server = socket(PF_INET, SOCK_STREAM, 0);
 
   // server setting
-  sockaddr_in server_addr = {};
+  struct sockaddr_in server_addr = {};
   server_addr.sin_family = AF_INET;
   server_addr.sin_addr.s_addr = htonl(INADDR_ANY);
   server_addr.sin_port = htons(PORT);
@@ -59,7 +59,7 @@ int main () {
       {
         if (fd == sock_fd_server)
         {
-          sockaddr_in c_addr;
+          struct sockaddr_in c_addr;
           int c_len = sizeof(c_addr);
           int sock_fd_client = accept(sock_fd_server, (struct sockaddr *) &c_addr,(socklen_t *) &c_len);
           FD_SET(sock_fd_client, &reads);
@@ -111,7 +111,7 @@ printf("after read\n");
               fname[0] = buf[1];
               fname[1] = '\0';
               FILE * fp = fopen(fname, "r");
-              while (fread(buf, 1, PSIZE, fp) != NULL)
+              while (fread(buf, 1, PSIZE, fp) != 0)
                 write(fd, buf, PSIZE);
               printf("저장된 메시지를 fd%d에게 모두 전달함\n", fd);
               fclose(fp);
