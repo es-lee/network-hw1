@@ -8,7 +8,7 @@
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #define PORT 20421
-#define PSIZE 50
+#define PSIZE 144
 #define MAXNUM 128
 
 int set_user_id();

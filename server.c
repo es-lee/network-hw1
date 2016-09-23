@@ -6,8 +6,7 @@
 #include <sys/time.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
-#define SIZE 2048
-#define PSIZE 50
+#define PSIZE 144
 #define MAX_CONN 30
 #define ONLINE 1
 #define OFFLINE 0
@@ -73,7 +72,7 @@ int main () {
         }
         else // recieve data from connected client
         {
-          char buf[SIZE];
+          char buf[PSIZE];
           int str_len = read(fd, buf, PSIZE);
           printf("get msg from fd%d\n", fd);
 
