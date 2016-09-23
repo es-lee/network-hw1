@@ -111,7 +111,9 @@ printf("after read\n");
               char fname[2];
               fname[0] = buf[1];
               fname[1] = '\0';
-              FILE * fp = fopen(fname, "r");
+              FILE * fp = fopen(fname, "a");
+              fclose(fp);
+              fp = fopen(fname, "r");
               while (fread(buf, 1, PSIZE, fp) != 0)
                 write(fd, buf, PSIZE);
               printf("저장된 메시지를 fd%d에게 모두 전달함\n", fd);
