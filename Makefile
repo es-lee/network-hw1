@@ -1,11 +1,11 @@
-CXX = g++
-CXXFLAGS = -Wall -std=c++11 -g
+CC = gcc
+CFLAGS = -Wall -std=c99
 TARGETS = server client
 
 all: $(TARGETS)
-%: %.cpp
-	$(CXX) $^ $(CXXFLAGS) -o $@
+%: %.c
+	$(CC) $^ $(CFLAGS) -o $@
 
 .PHONY: clean
 clean:
-	-rm -rf $(TARGETS) *.dSYM
+	-rm -rf $(TARGETS)
