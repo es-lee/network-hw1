@@ -4,6 +4,7 @@
 #include <signal.h>
 #include <string>
 #include <iostream>
+#include <deque>
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -14,6 +15,8 @@
 int set_user_id();
 int login(int, int);
 int isvalidid(int id);
+void readsize(char*, int);
+void rmnewline(char*);
 
 int main () {
   int sock_fd = socket(PF_INET, SOCK_STREAM, 0);
@@ -29,6 +32,8 @@ int main () {
   connect(sock_fd, (struct sockaddr*) &server_addr, sizeof(server_addr));
 
   int user_id = set_user_id();
+  while (!user_id)
+    user_id = set_user_id();
   login(user_id, sock_fd);
 
   pid_t pid = fork();
@@ -52,7 +57,12 @@ int main () {
     while(1)
     {
       char msg [PSIZE];
-      fgets(msg, PSIZE, stdin);
+      printf("╔═ ═ ═ ═ ═ ═ ═ ═ ═ ╗\n");
+      printf("║ s : send message ║\n");
+      printf("║ r : read message ║\n");
+      printf("║ q : exit         ║\n");
+      printf("╚═ ═ ═ ═ ═ ═ ═ ═ ═ ╝\n");
+      readsize(msg, PSIZE);
       if (!strcmp(msg, "q\n"))
       {
         shutdown(sock_fd, SHUT_WR);
@@ -62,14 +72,14 @@ int main () {
       }
       else if(!strcmp(msg, "s\n"))
       {
-        // TODO: 메시지 쓰기
+        // 메시지 쓰기
         printf("=====Send Message=====\n");
         while(1)
         {
           printf("To : ");
-          fgets(msg, PSIZE, stdin);
+          readsize(msg, PSIZE);
 
-          if (isvalidid(msg[0]-'0'))
+          if (isvalidid(msg[0]-'0') && strlen(msg)==2)
             break;
 
           printf("Invalid reciever id\n");
@@ -79,7 +89,9 @@ int main () {
         buf[1] = msg[0];
         buf[2] = user_id + '0';
         printf("Content :\n");
-        fgets(msg, PSIZE, stdin);
+        readsize(msg, PSIZE);
+        // TODO: \n->\0
+        rmnewline(msg);
         printf("[%s]\n", msg);
         strncpy(buf+3, msg, PSIZE-3);
         buf[PSIZE-1] = '\0';
@@ -99,6 +111,14 @@ int main () {
   return 0;
 }
 
+void rmnewline(char * str)
+{
+  int i = strlen(str);
+  printf("strlen = %d\n", i);
+  if (i < PSIZE-1)
+    str[i-1] = '\0';
+}
+
 int isvalidid(int id)
 {
   if (id < 1 || id > 9)
@@ -108,17 +128,17 @@ int isvalidid(int id)
 
 int set_user_id()
 {
-  char tmp;
+  char buf[PSIZE];
   printf("Enter your ID : ");
-  scanf("%c", &tmp);
-  int id = tmp-'0';
-  if (!isvalidid(id))
+  readsize(buf, PSIZE);
+  printf("id len : %d\n",strlen(buf));
+  if (!isvalidid(buf[0]-'0') || strlen(buf)!=2)
   {
-    perror("invalid id. byebye\n");
-    exit(0);
+    printf("invalid id.\n");
+    return 0;
   }
   else
-    return id;
+    return buf[0]-'0';
 }
 
 int login(int user_id, int sock_fd)
@@ -138,4 +158,11 @@ int login(int user_id, int sock_fd)
   }
   printf("login success\n");
   return login;
+}
+
+void readsize(char* str, int count)
+{
+  fgets(str, count, stdin);
+  fseek(stdin,0,SEEK_END);
+  printf("버퍼 다 비움\n");
 }
