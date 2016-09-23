@@ -12,7 +12,7 @@
 #define ONLINE 1
 #define OFFLINE 0
 #define INVALIDID 0
-#define PORT 20431
+#define PORT 20421
 
 int invalidlogin (int);
 int fdfindbyid (int);
