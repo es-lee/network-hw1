@@ -18,50 +18,59 @@ void readsize(char*, int);
 void rmnewline(char*);
 void *msgrecieve(void *);
 
-char msglog[MAXNUM][PSIZE];
-int msgnum;
+char msglog[MAXNUM][PSIZE]; // store messages
+int msgnum;                 // the number of saved messages
 
 int main () {
+  // client socket setting (TCP)
   int sock_fd = socket(PF_INET, SOCK_STREAM, 0);
-
-  struct sockaddr_in server_addr;
-  memset(&server_addr, 0, sizeof(struct sockaddr_in));
-
+  struct sockaddr_in server_addr = {};
   server_addr.sin_family = AF_INET;
   // for cn.snucse.org;
-  //server_addr.sin_addr.s_addr = inet_addr("147.46.240.40");
+  // server_addr.sin_addr.s_addr = inet_addr("147.46.240.40");
   server_addr.sin_addr.s_addr = inet_addr("127.0.0.1");
   server_addr.sin_port = htons(PORT);
 
+  // connect to server
   connect(sock_fd, (struct sockaddr*) &server_addr, sizeof(server_addr));
 
+  // try log on
   int user_id = set_user_id();
   while (!user_id)
     user_id = set_user_id();
-  if (!login(user_id, sock_fd))
+  if (!login(user_id, sock_fd))   // if login failed, quit program.
     return 0;
 
+  // create thread for recieving messages from server
   pthread_t tid;
   pthread_create(&tid, NULL, msgrecieve, (void *)&sock_fd);
+
+  // chatting process
   while(1)
   {
-    char msg [PSIZE];
+
+    // show commands
     printf("╔═ ═ ═ ═ ═ ═ ═ ═ ═ ╗\n");
     printf("║ s : send message ║\n");
     printf("║ r : read message ║\n");
     printf("║ q : exit         ║\n");
     printf("╚═ ═ ═ ═ ═ ═ ═ ═ ═ ╝\n");
+
+    // get command
+    char msg [PSIZE];
     readsize(msg, PSIZE);
-    if (!strcmp(msg, "q\n"))
+
+    if (!strcmp(msg, "q\n"))  // quit
     {
       shutdown(sock_fd, SHUT_WR);
       pthread_join(tid, (void **)&msg);
       break;
     }
-    else if(!strcmp(msg, "s\n"))
+    else if(!strcmp(msg, "s\n"))  // send message
     {
-      // 메시지 쓰기
       printf("=====Send Message=====\n");
+
+      // get reciever id
       while(1)
       {
         printf("To : ");
@@ -72,21 +81,28 @@ int main () {
 
         printf("Invalid reciever id\n");
       }
+
+      // make message
       char buf[PSIZE];
       buf[0] = '1';
       buf[1] = msg[0];
       buf[2] = user_id + '0';
+
+      // get message content
       printf("Content :\n");
       readsize(msg, PSIZE);
       rmnewline(msg);
+
+      // make message
       strncpy(buf+3, msg, PSIZE-3);
       buf[PSIZE-1] = '\0';
+
+      // send message to server
       write(sock_fd, buf, PSIZE);
       printf("======================\n");
     }
-    else if(!strcmp(msg, "r\n"))
+    else if(!strcmp(msg, "r\n"))  // read messages from archive(msglog)
     {
-      // TODO: 메시지 읽은거 보여주기
       printf("=====Read Message=====\n");
       int i;
       if (msgnum)
@@ -108,10 +124,12 @@ int main () {
     }
   }
 
+  // connection close
   close(sock_fd);
   return 0;
 }
 
+// remove new line from string and add null character
 void rmnewline(char * str)
 {
   int i = strlen(str);
@@ -119,6 +137,7 @@ void rmnewline(char * str)
     str[i-1] = '\0';
 }
 
+// id format check
 int isvalidid(int id)
 {
   if (id < 1 || id > 9)
@@ -126,6 +145,7 @@ int isvalidid(int id)
   return 1;
 }
 
+// get id from prompt
 int set_user_id()
 {
   char buf[PSIZE];
@@ -140,6 +160,7 @@ int set_user_id()
     return buf[0]-'0';
 }
 
+// try to login
 int login(int user_id, int sock_fd)
 {
   int login = 1;
@@ -147,9 +168,12 @@ int login(int user_id, int sock_fd)
   buf[0] = '0';
   buf[1] = user_id + '0';
 
-  // 통신부
+  // send login message to server
   write(sock_fd, buf, PSIZE);
+
+  // recieve login success/fail message from server
   read(sock_fd, buf, PSIZE);
+
   if (buf[1] - '0')
   {
     printf("login failed\n");
@@ -159,29 +183,34 @@ int login(int user_id, int sock_fd)
   return login;
 }
 
+// read string(length=count) from stdin buffer and flush
 void readsize(char* str, int count)
 {
   fgets(str, count, stdin);
   fseek(stdin,0,SEEK_END);
 }
 
+// thread process.
+// constantly recieve messages from server and store
 void *msgrecieve(void *vargp)
 {
   int sock_fd = *((int *)vargp);
 
   while(1)
   {
-    // 메시지 계속 읽어서 어딘가 저장하기
     char msg [PSIZE];
+
+    // recieve message from server
     int str_len = read(sock_fd, msg, PSIZE);
 
     if(str_len <= 0)
       break;
 
-    // 저장해야해 아까 msglog[][]에다가.
+    // store message to archive
     strncpy(msglog[msgnum++], msg, PSIZE);
     msg[str_len]=0;
   }
+
   close(sock_fd);
   return NULL;
 }

@@ -17,8 +17,9 @@
 int invalidlogin (int);
 int fdfindbyid (int);
 
+// store client information
 typedef struct {
-  struct sockaddr_in c_addr;
+  struct sockaddr_in c_addr;    // client ip addr, port
   int id;
   int active;
 } ClientState;
@@ -26,10 +27,8 @@ typedef struct {
 ClientState clstate[MAX_CONN];
 
 int main () {
-  // 서버 소켓 생성 (TCP)
+  // server socket setting (TCP)
   int sock_fd_server = socket(PF_INET, SOCK_STREAM, 0);
-
-  // server setting
   struct sockaddr_in server_addr = {};
   server_addr.sin_family = AF_INET;
   server_addr.sin_addr.s_addr = htonl(INADDR_ANY);
@@ -39,12 +38,13 @@ int main () {
 
   listen(sock_fd_server, 5);
 
-  // select() 사용하여 멀티플렉싱 서버 구현
+  // setting for multiplexing
   fd_set reads;
   FD_ZERO(&reads);
   FD_SET(sock_fd_server, &reads);
   int fd_max = sock_fd_server;
 
+  // multiplexing by using select()
   while (1)
   {
     fd_set tmps = reads;
@@ -56,9 +56,9 @@ int main () {
     int fd;
     for (fd = 0; fd <= fd_max; fd++)
     {
-      if (FD_ISSET(fd, &tmps))
+      if (FD_ISSET(fd, &tmps))    // find state-changed fd
       {
-        if (fd == sock_fd_server)
+        if (fd == sock_fd_server) // accept connection request for client
         {
           struct sockaddr_in c_addr;
           int c_len = sizeof(c_addr);
@@ -71,28 +71,25 @@ int main () {
           clstate[sock_fd_client].c_addr = c_addr;
           printf("client connected : fd%d\n", sock_fd_client);
         }
-        else
+        else // recieve data from connected client
         {
-          // TODO: 메시지큐, 메시지 처리
-printf("before read\n");
           char buf[SIZE];
           int str_len = read(fd, buf, PSIZE);
-printf("after read\n");
-          if (str_len <= 0)
+          printf("get msg from fd%d\n", fd);
+
+          if (str_len <= 0) // client deactiaved
           {
-            // deactivate
             clstate[fd].id = INVALIDID;
             clstate[fd].active = OFFLINE;
             FD_CLR(fd, &reads);
             close(fd);
             printf("client disconnected : fd%d\n", fd);
           }
-          else if (buf[0] == '0')
+          else if (buf[0] == '0') // login
           {
-            //login
-            if (invalidlogin(buf[1]-'0'))
+            if (invalidlogin(buf[1]-'0')) // invalid id check(ID already logged on)
             {
-            //login fail : 이미 로그인한 아이디로 로그인
+              // login failed
               clstate[fd].id = INVALIDID;
               clstate[fd].active = OFFLINE;
               write(fd, "01", PSIZE);
@@ -102,12 +99,15 @@ printf("after read\n");
             }
             else
             {
-              //login success
+              // login success
               printf("fd%d 가 id(%d)로 로그인함\n", fd, buf[1]-'0');
               clstate[fd].id = buf[1] - '0';
               clstate[fd].active = ONLINE;
+
+              // send log on success sign
               write(fd, "00", PSIZE);
-              // TODO : 지금까지 있는 로그 다 보내주고 파일 초기화
+
+              // send all saved messages for user
               char fname[2];
               fname[0] = buf[1];
               fname[1] = '\0';
@@ -122,26 +122,24 @@ printf("after read\n");
               fclose(fp);
             }
           }
-          else
+          else  //processing message from clients
           {
-            //msg 처리
             printf("메시지가 왔어요! fd%d가 보냄\n", fd);
             int recv_id = buf[1] - '0';
             int recv = fdfindbyid(recv_id);
-            if (recv)
+
+            if (recv) //reciever logged on
             {
-              //바로 보내기
               char wbuf[PSIZE];
               wbuf[0] = '1';
               wbuf[1] = buf[2];
               strncpy(wbuf+2, buf+3, PSIZE-3);
               write(recv, wbuf, PSIZE);
-              printf("메시지 바로 전달 프로토콜 : %s\n", wbuf);
+              printf("메시지 바로 전달함: %s\n", wbuf);
             }
-            else
+            else  //reciever deactivated
             {
-              //TODO: 메시지큐에 저장
-              printf("메시지큐에 저장해주세요!\n");
+              printf("store message.\n");
               char fname[2];
               fname[0] = buf[1];
               fname[1] = '\0';
@@ -163,6 +161,7 @@ printf("after read\n");
   return 0;
 }
 
+//find fd of logged on user by id
 int fdfindbyid(int id)
 {
   int i;
@@ -174,6 +173,7 @@ int fdfindbyid(int id)
   return 0;
 }
 
+//check id already logged on
 int invalidlogin(int id)
 {
   int i;
