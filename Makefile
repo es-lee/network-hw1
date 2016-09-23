@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -Wall -std=c99
+CFLAGS = -Wall -std=c99 -pthread
 TARGETS = server client
 
 all: $(TARGETS)

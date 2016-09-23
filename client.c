@@ -27,8 +27,7 @@ int main () {
   struct sockaddr_in server_addr = {};
   server_addr.sin_family = AF_INET;
   // for cn.snucse.org;
-  // server_addr.sin_addr.s_addr = inet_addr("147.46.240.40");
-  server_addr.sin_addr.s_addr = inet_addr("127.0.0.1");
+  server_addr.sin_addr.s_addr = inet_addr("147.46.240.40");
   server_addr.sin_port = htons(PORT);
 
   // connect to server
