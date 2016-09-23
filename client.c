@@ -92,7 +92,9 @@ int main () {
       int i;
       for (i = 0; i < msgnum; i++)
       {
-        printf("%s\n",msglog[i]);
+        printf("From : %c\n", msglog[i][1]);
+        printf("Content :\n");
+        printf("%s\n",msglog[i]+2);
       }
       msgnum = 0;
     }
